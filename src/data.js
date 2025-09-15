@@ -1,4 +1,3 @@
-import { makeIndex } from "./lib/utils.js";
 
 const BASE_URL = "https://webinars.webdev.education-services.ru/sp7-api";
 
@@ -10,8 +9,7 @@ export function initData() {
   let lastQuery;
 
   // функция для приведения строк в тот вид, который нужен нашей таблице
-  const mapRecords = (data) =>
-    data.map((item) => ({
+  const mapRecords = (data) => data.map((item) => ({
       id: item.receipt_id,
       date: item.date,
       seller: sellers[item.seller_id],

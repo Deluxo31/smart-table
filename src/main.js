@@ -1,8 +1,6 @@
 import "./fonts/ys-display/fonts.css";
 import "./style.css";
 
-import { data as sourceData } from "./data/dataset_1.js";
-
 import { initData } from "./data.js";
 import { processFormData } from "./lib/utils.js";
 
@@ -17,6 +15,41 @@ import { initFiltering } from "./components/filtering.js";
 // Исходные данные используемые в render()
 const api = initData();
 //const {data, ...indexes} = initData(sourceData);
+
+const sampleTable = initTable(
+  {
+    tableTemplate: "table",
+    rowTemplate: "row",
+    before: ["search", "header", "filter"],
+    after: ["pagination"],
+  },
+  render
+);
+
+const applySearching = initSearching("search");
+
+  const { applyFiltering, updateIndexes } = initFiltering(
+  sampleTable.filter.elements
+); // передаём элементы фильтра
+                            
+const applySorting = initSorting([
+  // Нам нужно передать сюда массив элементов, которые вызывают сортировку, чтобы изменять их визуальное представление
+  sampleTable.header.elements.sortByDate,
+  sampleTable.header.elements.sortByTotal,
+]);
+
+const { applyPagination, updatePagination } = initPagination(
+  sampleTable.pagination.elements, // передаём сюда элементы пагинации, найденные в шаблоне
+  (el, page, isCurrent) => {
+    // и колбэк, чтобы заполнять кнопки страниц данными
+    const input = el.querySelector("input");
+    const label = el.querySelector("span");
+    input.value = page;
+    input.checked = isCurrent;
+    label.textContent = page;
+    return el;
+  }
+);
 
 /**
  * Сбор и обработка полей из таблицы
@@ -52,45 +85,6 @@ async function render(action) {
   sampleTable.render(items);
 }
 
-const sampleTable = initTable(
-  {
-    tableTemplate: "table",
-    rowTemplate: "row",
-    before: ["search", "header", "filter"],
-    after: ["pagination"],
-  },
-  render
-);
-
-// @todo: инициализация
-const { applyPagination, updatePagination } = initPagination(
-  sampleTable.pagination.elements, // передаём сюда элементы пагинации, найденные в шаблоне
-  (el, page, isCurrent) => {
-    // и колбэк, чтобы заполнять кнопки страниц данными
-    const input = el.querySelector("input");
-    const label = el.querySelector("span");
-    input.value = page;
-    input.checked = isCurrent;
-    label.textContent = page;
-    return el;
-  }
-);
-
-const applySorting = initSorting([
-  // Нам нужно передать сюда массив элементов, которые вызывают сортировку, чтобы изменять их визуальное представление
-  sampleTable.header.elements.sortByDate,
-  sampleTable.header.elements.sortByTotal,
-]);
-
-const { applyFiltering, updateIndexes } = initFiltering(
-  sampleTable.filter.elements
-); // передаём элементы фильтра
-
-const applySearching = initSearching(
-  sampleTable.search.elements.search,
-  "search"
-);
-
 const appRoot = document.querySelector("#app");
 appRoot.appendChild(sampleTable.container);
 
@@ -101,5 +95,6 @@ async function init() {
     searchBySeller: indexes.sellers,
   });
 }
+
 
 init().then(render);
